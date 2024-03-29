@@ -10,6 +10,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ComplainantController;
 use App\Http\Controllers\DashboardController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -54,3 +55,7 @@ Route::delete('/complainants/{id}', [ComplainantController::class, 'destroy']);
 Route::get('/dashboard/cases-by-status', [DashboardController::class, 'casesByStatus']);
 Route::get('/dashboard/cases-over-time', [DashboardController::class, 'casesOverTime'])->name('dashboard.casesOverTime');
 
+
+
+Route::get('/police', [PoliceController::class, 'index'])->name('police.index');
+Route::post('/police', [PoliceController::class, 'store'])->name('police.store');

@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class PoliceController extends Controller
 {
-    public function register(Request $request)
+    public function store(Request $request)
     {
         try {
             $request->validate([
@@ -17,7 +17,6 @@ class PoliceController extends Controller
                 'last_name' => 'required|string|max:255',
                 'phone' => 'required|numeric|unique:users,phone',
                 'email' => 'required|string|email|max:255|unique:users,email',
-                'password' => 'required|string|min:8|confirmed',
             ]);
 
             $user = new User();
@@ -25,7 +24,7 @@ class PoliceController extends Controller
             $user->last_name = $request->input('last_name');
             $user->phone = $request->input('phone');
             $user->email = $request->input('email');
-            $user->password = Hash::make($request->input('password'));
+            $user->password = Hash::make($request->input('phone'));
             $user->role = 'police'; // Set the role to "police"
             $user->save();
 
@@ -36,4 +35,11 @@ class PoliceController extends Controller
             return response()->json(['message' => 'Registration failed'], 500);
         }
     }
+    
+    public function index()
+    {
+        $police = User::where('role', 'police')->get();
+        return response()->json($police);
+    }
+    
 }
