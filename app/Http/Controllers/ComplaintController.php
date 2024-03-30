@@ -24,10 +24,13 @@ public function update(Request $request, Complaint $complaint)
         // Update the complaint status
         $complaint->update($validatedData);
 
-      
-       // Fetch complainant email by querying the Complainant model
-$complainantEmail = Complainant::where('id', $complaint->complainant_id)->value('email');
-
+        \Log::warning('Complaint ID: ' . $complaint->id);
+        \Log::warning('Complainant ID: ' . $complaint->complainant_id);
+        
+        // Fetch complainant email by querying the Complainant model
+        $complainantEmail = Complainant::where('id', $complaint->complainant_id)->value('email');
+        \Log::warning('Complainant Email: ' . $complainantEmail);
+        
 
         // Check if complainant email is valid
         if (!empty($complainantEmail)) {
