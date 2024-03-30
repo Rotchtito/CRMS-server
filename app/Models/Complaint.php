@@ -16,12 +16,10 @@ class Complaint extends Model
         'suspect_id',
         'status',
         'police_in_charge_id',
-        'evidence',
+        'video_path'
     ];
 
-    protected $casts = [
-        'evidence' => 'json',
-    ];
+    // Remove the $casts property for 'evidence'
 
     public function complainant()
     {

@@ -24,8 +24,10 @@ public function update(Request $request, Complaint $complaint)
         // Update the complaint status
         $complaint->update($validatedData);
 
-        // Fetch complainant email directly from the complaint
-        $complainantEmail = $complaint->complainant->email;
+      
+       // Fetch complainant email by querying the Complainant model
+$complainantEmail = Complainant::where('id', $complaint->complainant_id)->value('email');
+
 
         // Check if complainant email is valid
         if (!empty($complainantEmail)) {
@@ -83,12 +85,11 @@ public function update(Request $request, Complaint $complaint)
             'suspectName' => 'required|string',
             'suspectAge' => 'nullable|integer',
             'suspectDescription' => 'nullable|string',
-            'police_in_charge_id'=>'required',
+            'police_in_charge_id' => 'required',
             'suspectAddress' => 'nullable|string',
-            'evidence' => 'array', // Assuming evidence is an array
-            'evidence.*' => 'string' // Assuming each evidence item is a string
+            'evidence.*' => 'required|file|mimes:mp4,mov,avi', // Handle multiple files
         ]);
-
+    
         // Create complainant
         $complainant = Complainant::create([
             'name' => $validatedData['complainantName'],
@@ -96,7 +97,7 @@ public function update(Request $request, Complaint $complaint)
             'phone' => $validatedData['complainantPhone'],
             'address' => $validatedData['complainantAddress'],
         ]);
-
+    
         // Create suspect
         $suspect = Suspect::create([
             'name' => $validatedData['suspectName'],
@@ -104,23 +105,35 @@ public function update(Request $request, Complaint $complaint)
             'description' => $validatedData['suspectDescription'],
             'address' => $validatedData['suspectAddress'],
         ]);
-
-        // Create a new complaint instance
-        $complaint = new Complaint([
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'complainant_id' => $complainant->id,
-            'suspect_id' => $suspect->id,
-            'police_in_charge_id' => $validatedData['police_in_charge_id'],
-            'evidence' => $validatedData['evidence']
-        ]);
-
-        // Save the complaint
-        $complaint->save();
-
+    
+        // Save each video file
+        $videoPaths = [];
+        foreach ($request->file('evidence') as $file) {
+            $videoPath = $file->store('evidence', 'public');
+            $videoPaths[] = $videoPath;
+        }
+    
+        // Create new complaint instances for each file
+        $complaints = [];
+        foreach ($videoPaths as $videoPath) {
+            $complaint = new Complaint([
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+                'complainant_id' => $complainant->id,
+                'suspect_id' => $suspect->id,
+                'police_in_charge_id' => $validatedData['police_in_charge_id'],
+                'video_path' => $videoPath,
+            ]);
+            $complaint->save();
+            $complaints[] = $complaint;
+        }
+    
         // Return a success response
-        return response()->json(['message' => 'Complaint created successfully', 'complaint' => $complaint], 201);
+        return response()->json(['message' => 'Complaints created successfully', 'complaints' => $complaints], 201);
     }
+    
+    
+    
 
     // Other methods as per your requirements
 }

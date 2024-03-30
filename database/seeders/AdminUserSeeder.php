@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'phone' => '1234567890', // Assuming phone is a string field
             'role' => 'admin',
-            'password' => Hash::make('admin'), // Use Hash facade to hash password
+            'password' => Hash::make('password'), // Use Hash facade to hash password
             'created_at' => now(),
             'updated_at' => now(),
         ]);

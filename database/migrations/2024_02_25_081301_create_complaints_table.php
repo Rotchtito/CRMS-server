@@ -16,10 +16,11 @@ class CreateComplaintsTable extends Migration
             $table->foreignId('suspect_id')->constrained('suspects');
             $table->string('status')->default('pending');
             $table->foreignId('police_in_charge_id')->nullable()->constrained('users');
-            $table->json('evidence')->nullable();
+            $table->string('video_path')->nullable(); // Updated field name
             $table->timestamps();
         });
     }
+    
 
     public function down()
     {
