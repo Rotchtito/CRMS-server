@@ -15,12 +15,12 @@ class AdminUserSeeder extends Seeder
     {   
         // Insert admin user data
         DB::table('users')->insert([
-            'first_name' => 'Kenedy',
-            'last_name' => 'Kipkirui',
-            'email' => 'kened.k24@gmail.com',
+            'first_name' => 'system',
+            'last_name' => 'Admin',
+            'email' => 'admin@gmail.com',
             'phone' => '1234567890', // Assuming phone is a string field
             'role' => 'admin',
-            'password' => Hash::make('123456'), // Use Hash facade to hash password
+            'password' => Hash::make('admin'), // Use Hash facade to hash password
             'created_at' => now(),
             'updated_at' => now(),
         ]);

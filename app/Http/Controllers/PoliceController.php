@@ -18,13 +18,14 @@ class PoliceController extends Controller
                 'phone' => 'required|numeric|unique:users,phone',
                 'email' => 'required|string|email|max:255|unique:users,email',
             ]);
+            $password =12345678;
 
             $user = new User();
             $user->first_name = $request->input('first_name');
             $user->last_name = $request->input('last_name');
             $user->phone = $request->input('phone');
             $user->email = $request->input('email');
-            $user->password = Hash::make($request->input('phone'));
+            $user->password = Hash::make($password);
             $user->role = 'police'; // Set the role to "police"
             $user->save();
 
