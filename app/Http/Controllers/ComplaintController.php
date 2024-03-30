@@ -13,46 +13,45 @@ class ComplaintController extends Controller
     
 
 
-public function update(Request $request, Complaint $complaint)
-{
-    try {
-        // Validate incoming request data
-        $validatedData = $request->validate([
-            'status' => 'required', // Assuming 'status' is the only field to be updated
-        ]);
-
-        // Update the complaint status
-        $complaint->update($validatedData);
-
-        \Log::warning('Complaint ID: ' . $complaint->id);
-        \Log::warning('Complainant ID: ' . $complaint->complainant_id);
-        
-        // Fetch complainant email by querying the Complainant model
-        $complainantEmail = Complainant::where('id', $complaint->complainant_id)->value('email');
-        \Log::warning('Complainant Email: ' . $complainantEmail);
-        
-
-        // Check if complainant email is valid
-        if (!empty($complainantEmail)) {
-            // Send email to the complainant
-            Mail::raw('Your complaint status has been updated.', function ($message) use ($complainantEmail) {
-                $message->to($complainantEmail)
-                        ->subject('Complaint Status Updated');
-            });
-        } else {
-            \Log::warning('Complainant email is empty or null', ['complaint_id' => $complaint->id]);
+    public function update(Request $request, Complaint $complaint)
+    {
+        try {
+            // Validate incoming request data
+            $validatedData = $request->validate([
+                'status' => 'required', // Assuming 'status' is the only field to be updated
+            ]);
+    
+            // Retrieve complainant email from the request payload
+            $complainantEmail = $request->input('complainant.email');
+    
+            // Update the complaint status
+            $complaint->update($validatedData);
+    
+            // Log the complainant's email
+            \Log::warning('Complainant Email: ' . $complainantEmail);
+    
+            // Check if complainant email is valid
+            if (!empty($complainantEmail)) {
+                // Send email to the complainant
+                Mail::raw('Your complaint status has been updated.', function ($message) use ($complainantEmail) {
+                    $message->to($complainantEmail)
+                            ->subject('Complaint Status Updated');
+                });
+            } else {
+                \Log::warning('Complainant email is empty or null', ['complaint_id' => $complaint->id]);
+            }
+    
+            // Return success response
+            return response()->json(['message' => 'Complaint status updated successfully', 'complaint' => $complaint]);
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Failed to update complaint status', ['error' => $e->getMessage()]);
+    
+            // Handle any errors that occur during the process
+            return response()->json(['error' => 'Failed to update complaint status'], 500);
         }
-
-        // Return success response
-        return response()->json(['message' => 'Complaint status updated successfully', 'complaint' => $complaint]);
-    } catch (\Exception $e) {
-        // Log the error
-        \Log::error('Failed to update complaint status', ['error' => $e->getMessage()]);
-
-        // Handle any errors that occur during the process
-        return response()->json(['error' => 'Failed to update complaint status'], 500);
     }
-}
+    
 
     
     public function index()
@@ -122,7 +121,9 @@ public function update(Request $request, Complaint $complaint)
             $complaint = new Complaint([
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
-                'complainant_id' => $complainant->id,
+               
+                'complainant_id' => $complainant->id, // Associate the complaint with the newly created complainant
+
                 'suspect_id' => $suspect->id,
                 'police_in_charge_id' => $validatedData['police_in_charge_id'],
                 'video_path' => $videoPath,
